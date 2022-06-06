@@ -25,8 +25,18 @@ The purpose of this project is to create a quick book collection mobile app :
 
 ## Stack
 
-- Python or Flutter
+- Python or Flutter or Go or React Native (TS)
 - SQLite
+
+
+```markdown
+To run your project, run one of the following yarn commands.
+
+- yarn start # you can open iOS, Android, or web from here, or run them directly with the commands below.
+- yarn android
+- yarn ios # requires an iOS device or macOS for access to an iOS simulator
+- yarn web
+```
 
 
 
