@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scan/scan.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' show jsonEncode;
+import 'dart:convert' show jsonDecode;
 
 import 'dart:developer';
 
@@ -55,6 +55,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   ScanController controller = ScanController();
   String _scanResult = '';
+  String _bookName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +74,13 @@ class _MyHomePageState extends State<MyHomePage> {
               _scanResult,
               style: Theme.of(context).textTheme.headline4,
             ),
+            const Text(
+              'The book is:',
+            ),
+            Text(
+              _bookName,
+              style: Theme.of(context).textTheme.headline4,
+            )
           ],
         ),
       ),
@@ -88,6 +96,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _showBarcodeScanner() {
+    setState(() {
+      _bookName = '';
+      _scanResult = '';
+    });
+
     return showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -107,8 +120,8 @@ class _MyHomePageState extends State<MyHomePage> {
   AppBar _buildBarcodeScannerAppBar() {
     return AppBar(
       bottom: PreferredSize(
-        child: Container(color: Colors.purpleAccent, height: 4.0),
         preferredSize: const Size.fromHeight(4.0),
+        child: Container(color: Colors.purpleAccent, height: 4.0),
       ),
       title: const Text('Scan Your Barcode'),
       elevation: 0.0,
@@ -150,13 +163,45 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<http.Response> sendISBN(String isbn) {
-    log('data: $isbn');
-    return http.get(
+  // Future<http.Response> sendISBN(String isbn) async {
+  void sendISBN(String isbn) async {
+    log('data: $isbn');  // DEBUG FIXME
+
+    final response = await http.get(
       Uri.parse('http://192.168.1.14:4100/books/$isbn'),
-      headers: <String, String>{
+      headers: <String , String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
+    log('result fetched');
+
+    if (response.statusCode == 200) {
+      updateBookNameVariable(jsonDecode(response.body));
+    }
+  }
+
+  void updateBookNameVariable(responseBody) {
+    switch (responseBody["status_code"]) {
+      case 200 : // Enter this block if mark == 0
+        setState(() {
+          _bookName = responseBody["title"];
+        });
+        break;
+      case 401: // Enter this block if mark == 1 or mark == 2 or mark == 3
+        setState(() {
+          _bookName = responseBody["message"];
+        });
+        break;
+      case 404: // Enter this block if mark == 1 or mark == 2 or mark == 3
+        setState(() {
+          _bookName = responseBody["message"];
+        });
+        break;
+      default :
+        setState(() {
+          _bookName = "Error";
+        });
+        break;
+    }
   }
 }
