@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import requests
+import psycopg2
 
 app = FastAPI(
       title="Book App Server",
@@ -28,11 +29,13 @@ async def post_isbn(isbn):
 
     book_details = result.json()
 
-    print(f"200 : {book_details['title']}")  # FIXME: DEBUG
+    print(f"200 : {book_details['full_title']}")  # FIXME: DEBUG
     print(book_details) # FIXME: DEBUG
 
+    insert_book_in_database(isbn, book_details)
+
     return {"status_code": 200, "message": "Your book is found",
-        "isbn": isbn, "title": book_details["title"]}
+        "isbn": isbn, "title": book_details["full_title"]}
 
 def get_book_details(isbn):
     return requests.get(f"https://openlibrary.org/isbn/{isbn}.json")
@@ -41,3 +44,27 @@ def is_valid_isbn(isbn):
     if (len(isbn) == 10 or len(isbn) == 13) and isbn.isdigit():
         return True
     return False
+
+def insert_book_in_database(isbn, book_details):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432",
+            database="library"
+        )
+        cur = conn.cursor()
+        cur.execute(f"""
+            INSERT INTO books(isbn, title, full_title)
+            VALUES ('{isbn}','{book_details['title']}','{book_details['full_title']}')
+            RETURNING isbn;
+        """)
+        conn.commit()
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
