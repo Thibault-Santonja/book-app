@@ -70,7 +70,26 @@ class _CollectionPageState extends State<CollectionPage> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 // print(jsonEncode(snapshot.data!));
-                return Text(snapshot.data!.columns[0]);
+                var collection = snapshot.data!.collection;
+
+                return ListView.builder(
+                  // Let the ListView know how many items it needs to build.
+                  itemCount: collection.length,
+                  // Provide a builder function. This is where the magic happens.
+                  // Convert each item into a widget based on the type of item it is.
+                  itemBuilder: (context, index) {
+                    final item = collection[index];
+                    final isbn = item[0];
+                    final title = item[1];
+
+                    return ListTile(
+                        leading: const Icon(Icons.book),
+                        title: Text(title),
+                        subtitle: Text('$isbn')
+                    );
+                  },
+                );
+                // return Text(snapshot.data!.columns[0]);
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error}');
               }
@@ -83,4 +102,3 @@ class _CollectionPageState extends State<CollectionPage> {
     );
   }
 }
-
