@@ -42,7 +42,15 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    Text('Index 0: Home'),
+    Text('''Welcome !
+    
+Navigate to your collection or add new books to your collection using the bottom menu !''',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+          fontSize: 32, // fontWeight: FontWeight.bold,
+          color: Colors.blue
+      )
+    ),
     CollectionPage(title: "Collection"),
     ScannerPage(title: "ISBN scanner"),
   ];
