@@ -29,13 +29,13 @@ async def post_isbn(isbn):
 
     book_details = result.json()
 
-    print(f"200 : {book_details['full_title']}")  # FIXME: DEBUG
+    print(f"200 : {book_details.get('full_title')}")  # FIXME: DEBUG
     print(book_details) # FIXME: DEBUG
 
     insert_book_in_database(isbn, book_details)
 
     return {"status_code": 200, "message": "Your book is found",
-        "isbn": isbn, "title": book_details["full_title"]}
+        "isbn": isbn, "title": book_details.get('full_title', book_details.get('title'))}
 
 def get_book_details(isbn):
     return requests.get(f"https://openlibrary.org/isbn/{isbn}.json")
@@ -58,7 +58,7 @@ def insert_book_in_database(isbn, book_details):
         cur = conn.cursor()
         cur.execute(f"""
             INSERT INTO books(isbn, title, full_title)
-            VALUES ('{isbn}','{book_details['title']}','{book_details['full_title']}')
+            VALUES ('{isbn}','{book_details['title']}','{book_details.get('full_title')}')
             RETURNING isbn;
         """)
         conn.commit()
