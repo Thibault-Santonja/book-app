@@ -16,34 +16,99 @@ app = FastAPI(
 async def root():
     return {"message": "Hello World"}
 
+
+@app.get("/books")
+async def get_books():
+    return {
+        "status_code": 200,
+        "message": "Here your collection",
+        "collection": get_books_in_database()
+    }
+
+
 @app.get("/books/{isbn}")
-async def post_isbn(isbn):
+async def get_book(isbn):
     if not is_valid_isbn(isbn):
         print("401 : Not a valid ISBN.")  # FIXME: DEBUG
         return {"status_code": 401, "message": "Not a valid ISBN."}
 
-    result = get_book_details(isbn)
-    if result.status_code == 404:
-        print("404 : Book not found.")  # FIXME: DEBUG
-        return {"status_code": 404, "message": "Book not found."}
+    return get_book_details(isbn)
 
-    book_details = result.json()
-
-    print(f"200 : {book_details.get('full_title')}")  # FIXME: DEBUG
-    print(book_details) # FIXME: DEBUG
-
-    insert_book_in_database(isbn, book_details)
-
-    return {"status_code": 200, "message": "Your book is found",
-        "isbn": isbn, "title": book_details.get('full_title', book_details.get('title'))}
-
-def get_book_details(isbn):
-    return requests.get(f"https://openlibrary.org/isbn/{isbn}.json")
 
 def is_valid_isbn(isbn):
     if (len(isbn) == 10 or len(isbn) == 13) and isbn.isdigit():
         return True
     return False
+
+
+def get_book_details(isbn):
+    book = get_book_in_database(isbn)
+    if not book:
+        result = requests.get(f"https://openlibrary.org/isbn/{isbn}.json")
+
+        if result.status_code == 404:
+            print("404 : Book not found.")  # FIXME: DEBUG
+            return {"status_code": 404, "message": "Book not found."}
+
+        book = result.json()
+        insert_book_in_database(isbn, book)
+    return {
+        "status_code": 200,
+        "message": "Your book is found",
+        "isbn": isbn,
+        "title": book.get('full_title', book.get('title'))
+    }
+
+def get_books_in_database(many=None):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432",
+            database="library"
+        )
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT * FROM books;")
+            if many:
+                res = cursor.fetchmany(many)
+            else:
+                res =  cursor.fetchall()
+            return {
+                "columns": [desc[0] for desc in cursor.description],
+                "data": res
+            }
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def get_book_in_database(isbn):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            user="postgres",
+            password="postgres",
+            host="127.0.0.1",
+            port="5432",
+            database="library"
+        )
+        with conn.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM books WHERE isbn='{isbn}';")
+            res = cursor.fetchone()
+            if res:
+                return dict(zip([desc[0] for desc in cursor.description], res))
+            else:
+                None
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
 
 def insert_book_in_database(isbn, book_details):
     conn = None
@@ -55,14 +120,14 @@ def insert_book_in_database(isbn, book_details):
             port="5432",
             database="library"
         )
-        cur = conn.cursor()
-        cur.execute(f"""
+        cursor = conn.cursor()
+        cursor.execute(f"""
             INSERT INTO books(isbn, title, full_title)
             VALUES ('{isbn}','{book_details['title']}','{book_details.get('full_title')}')
             RETURNING isbn;
         """)
         conn.commit()
-        cur.close()
+        cursor.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
