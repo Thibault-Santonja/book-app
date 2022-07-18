@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' show jsonDecode, jsonEncode;
+import 'dart:convert' show jsonDecode, utf8;
 import 'dart:async';
 
 import 'dart:developer';
@@ -14,7 +14,7 @@ Future<Collection> fetchCollection() async {
   );
 
   if (response.statusCode == 200) {
-    return Collection.fromJson(jsonDecode(response.body));
+    return Collection.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
   } else {
     throw Exception('Failed to load collection');
   }
@@ -84,7 +84,7 @@ class _CollectionPageState extends State<CollectionPage> {
 
                     return ListTile(
                         leading: const Icon(Icons.book),
-                        title: Text(title),
+                        title: Text('$title'),
                         subtitle: Text('$isbn')
                     );
                   },

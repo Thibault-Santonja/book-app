@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scan/scan.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' show jsonDecode;
-
-import 'dart:developer';
+import 'dart:convert' show jsonDecode, utf8;
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({Key? key, required this.title}) : super(key: key);
@@ -138,7 +136,7 @@ class _ScannerPageState extends State<ScannerPage> {
     );
 
     if (response.statusCode == 200) {
-      updateBookNameVariable(jsonDecode(response.body));
+      updateBookNameVariable(jsonDecode(utf8.decode(response.bodyBytes)));
     }
   }
 
