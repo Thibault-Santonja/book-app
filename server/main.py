@@ -3,14 +3,15 @@ import requests
 import psycopg2
 
 app = FastAPI(
-      title="Book App Server",
-      description="Book App",
-      version="0.1.0",
-      license_info={
-          "name": "MIT",
-          "url": "https://opensource.org/licenses/MIT",
-      }
-  )
+    title="Book App Server",
+    description="Book App",
+    version="0.1.0",
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT",
+    }
+)
+
 
 @app.get("/")
 async def root():
@@ -59,6 +60,7 @@ def get_book_details(isbn):
         "title": book.get('full_title', book.get('title'))
     }
 
+
 def get_books_in_database(many=None):
     conn = None
     try:
@@ -74,7 +76,7 @@ def get_books_in_database(many=None):
             if many:
                 res = cursor.fetchmany(many)
             else:
-                res =  cursor.fetchall()
+                res = cursor.fetchall()
             return {
                 "columns": [desc[0] for desc in cursor.description],
                 "data": res
@@ -102,7 +104,7 @@ def get_book_in_database(isbn):
             if res:
                 return dict(zip([desc[0] for desc in cursor.description], res))
             else:
-                None
+                return
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:

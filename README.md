@@ -38,6 +38,15 @@ To run your project, run one of the following yarn commands.
 - yarn web
 ```
 
+---
+
+## Quick run
+
+Server
+```shell
+cd server
+uvicorn main:app --reload
+```
 
 
 ---
