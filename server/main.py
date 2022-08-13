@@ -102,9 +102,9 @@ def get_book_in_database(isbn):
             cursor.execute(f"SELECT * FROM books WHERE isbn='{isbn}';")
             res = cursor.fetchone()
             if res:
-                return dict(zip([desc[0] for desc in cursor.description], res))
-            else:
-                return
+                res = dict(zip([desc[0] for desc in cursor.description], res))
+                if res['full_title'] != 'None':
+                    return dict(zip([desc[0] for desc in cursor.description], res))
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
@@ -125,7 +125,10 @@ def insert_book_in_database(isbn, book_details):
         cursor = conn.cursor()
         cursor.execute(f"""
             INSERT INTO books(isbn, title, full_title)
-            VALUES ('{isbn}','{book_details['title']}','{book_details.get('full_title')}')
+            VALUES ('{isbn}','{book_details['title']}','{book_details.get('full_title', book_details['title'])}') 
+            ON CONFLICT (isbn) DO UPDATE SET
+                title = EXCLUDED.title,
+                full_title = EXCLUDED.full_title
             RETURNING isbn;
         """)
         conn.commit()
