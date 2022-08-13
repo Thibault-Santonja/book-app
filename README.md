@@ -45,7 +45,7 @@ To run your project, run one of the following yarn commands.
 Server
 ```shell
 cd server
-uvicorn main:app --reload
+uvicorn main:app --reload --host 0.0.0.0 --port 4100
 ```
 
 
