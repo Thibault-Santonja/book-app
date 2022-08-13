@@ -25,7 +25,7 @@ create unique index books_isbn_uindex
 CREATE OR REPLACE FUNCTION trigger_set_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.date_updated = NOW();
+  NEW.date_updated = now();
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

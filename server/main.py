@@ -52,7 +52,8 @@ def get_book_details(isbn):
             return {"status_code": 404, "message": "Book not found."}
 
         book = result.json()
-        insert_book_in_database(isbn, book)
+        insert_book_in_database(isbn, book)\
+
     return {
         "status_code": 200,
         "message": "Your book is found",
@@ -103,8 +104,8 @@ def get_book_in_database(isbn):
             res = cursor.fetchone()
             if res:
                 res = dict(zip([desc[0] for desc in cursor.description], res))
-                if res['full_title'] != 'None':
-                    return dict(zip([desc[0] for desc in cursor.description], res))
+                if res['full_title'] not in (None, 'None'):
+                    return res
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
