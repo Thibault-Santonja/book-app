@@ -1,4 +1,4 @@
-#Mon Jul 18 14:35:44 CEST 2022
+#Sat Aug 13 21:25:16 CEST 2022
 base.0=/Users/thibaultsantonja/Dev/Flutter/book-app/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
 renamed.0=classes.dex
 path.0=classes.dex

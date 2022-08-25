@@ -6,6 +6,8 @@ create table books
     title         text,
     isbn_10       text,
     isbn_13       text,
+    authors       text,
+    description   text,
     quantity      integer,
     full_title    text,
     date_inserted timestamp default now() not null,
