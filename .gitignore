@@ -12,3 +12,18 @@ web-build/
 
 # macOS
 .DS_Store
+
+# IDE
+.idea
+.vscode
+
+# Miscellaneous
+*.pyc
+*.log
+
+
+# packages file containing multi-root paths
+.packages.generated
+
+# Flutter/Dart/Pub related
+.dart_tool/
