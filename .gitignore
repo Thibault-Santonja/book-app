@@ -27,3 +27,7 @@ web-build/
 
 # Flutter/Dart/Pub related
 .dart_tool/
+
+
+# Rust
+server_rs/target/*
