@@ -1,0 +1,15 @@
+[package]
+name = "book_app_server"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+salvo = "*"
+tokio = { version = "1", features = ["macros"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+diesel = { version = "2.1.0", features = ["postgres", "r2d2"] }
+dotenvy = "0.15"
+once_cell = "*"
+serde = "*"
