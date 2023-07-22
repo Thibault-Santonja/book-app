@@ -30,4 +30,4 @@ web-build/
 
 
 # Rust
-server_rs/target/*
+server_rs_*/target/*
